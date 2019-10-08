@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta charset="UTF-8" name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+	<title>learn-canvas</title>
+	<style>
+		*{
+			padding: 0;
+			margin: 0;
+		}
+		html,body{
+			width: 100%;
+			height: 100%;
+			padding: 0;
+			margin: 0;
+			overflow: hidden;
+			background-image: url('./assets/1.jpg');
+			background-position: center center;
+			background-repeat: no-repeat;
+			background-size: cover;
+		}
+		canvas{
+			padding:0;
+			margin:0;
+			opacity:1;
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+		.toolsBox{
+			position: absolute;
+			width: 300px;
+			height: 200px;
+			right: 10px;
+			top: 10px;
+			/*box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.34);*/
+			box-shadow: 0 0 0 1px rgba(0, 0, 0, 0) inset, 0 0.5em 1em rgba(0, 0, 0, 0.6);
+		}
+		.toolsBox:after{
+			content: '';
+			position: absolute;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			filter: blur(20px);
+			background: rgba(255, 255, 255, 0.48);
+			z-index: 0;
+		}
+		.tools{
+			position: absolute;
+			z-index: 1;
+			width: 100%;
+			height: 100%;
+			color: #fff;
+			padding: 10px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+	
+	
+	<div class="toolsBox">
+		<div class="tools">
+			<label for="">选择风格</label>
+			<select name="" id="select">
+				<option value="1">style1</option>
+				<option value="2" selected>style2</option>
+				<option value="3">style3</option>
+			</select>
+		</div>
+	</div>
+	<script src="./js/canvasForDRP.js"></script>
+	<script src="./js/audio.js"></script>
+	<script>
+		window.onload = () => {
+			const option =  {
+			    ctx: canvasForDPR(document.getElementById('canvas')),
+					audio: new Audio(),
+					width: window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth,
+					height: window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight,
+				  // 圆心点x
+				  x: function () {
+						  return this.width / 2
+		      },
+				  // 圆心点y
+				  y: function() {
+			    	return this.height / 2
+				  },
+				  // 半径
+				  R: 250,
+					r: 245,
+		      audioContext: null,
+		      source: null,
+		      analyser: null,
+		      dataArray: new Array(4096),
+		      fftSize: 4096,
+					outSideArr: [],
+					inSideArr: [],
+					// 可视数量
+					pointNum: 180,
+					// 振幅（0 - 1）
+		      range: 0.2,
+					// 线条粗细
+		      lineWidth: 4,
+					// 线条颜色
+		      strokeStyle: 'rgba(255,255,255,0.8)',
+					// 线条阴影颜色
+		      shadowColor: '#ffcccc',
+					// 线条阴影大小
+		      shadowBlur: 15,
+					// 线条样式
+		      lineCap: 'round',
+					// 默认样式
+		      style: 2,
+			}
+			option.audio.src = './assets/123.mp3';
+			option.audio.controls = true;
+			document.body.appendChild(option.audio);
+			document.addEventListener('click', () => {
+				if(option.audioContext === null){
+					option.audioContext = new AudioContext();
+					option.source = option.audioContext.createMediaElementSource(option.audio);
+					option.analyser = option.audioContext.createAnalyser();
+					option.source.connect(option.analyser);
+					option.analyser.connect(option.audioContext.destination);
+					option.analyser.fftSize = option.fftSize;
+					option.dataArray = new Uint8Array(option.analyser.fftSize);
+				}
+			});
+			initDraw(option);
+			
+			document.getElementById('select').onchange = (e) => {
+				option.style = document.getElementById('select').selectedIndex + 1;
+			}
+		}
+	</script>
+</body>
+</html>
